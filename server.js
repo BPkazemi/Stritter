@@ -4,14 +4,21 @@ var app = require('express')();
 var server = require('http').createServer(app);
 // Socket io
 var io = require('socket.io').listen(server);
-// Redis
-var redis = require('redis');
 // Twitter
 var twitter = require('ntwitter');
 var cred = require('./credentials');
 // Categories
 var categories = require('./categories');
 var holidays = categories.holidays;
+// Redis (& Heroku)
+if (process.env.REDISTOGO_URL) {
+    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+	var redis = require("redis").createClient(rtg.port, rtg.hostname);
+
+	redis.auth(rtg.auth.split(":")[1]);
+} else {
+    var redis = require("redis").createClient();
+}
 
 // Start the server
 server.listen(3000);
