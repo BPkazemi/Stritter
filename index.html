@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html ng-app="">
+<head>
+	<title>Stritter</title>
+	<!-- jQuery -->
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<!-- socket.io -->
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+	<!-- D3 -->
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	
+	<!-- Application Scripts -->
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var socket = io.connect('http://localhost');
+		var svgHeight = window.innerHeight/1.1,
+			svgWidth = window.innerWidth;
+
+		// D3 Visualization
+		var svg = d3.select("body").append("svg")
+			.attr("width", svgWidth)
+			.attr("height", svgHeight);
+
+		// Everytime we get new data, update the list
+		socket.on('data', function(data) {
+			var total_data_list = "", hourly_data_list = "";
+			for(category in data.total_data) {
+				total_data_list += "<li>" + category + ": " + data.total_data[category] + "</li>";
+				hourly_data_list += "<li>" + category + ": " + data.hourly_data[category] + "</li>";
+			}
+			document.getElementById("total_data_container").innerHTML = total_data_list;
+			document.getElementById("hourly_data_container").innerHTML = hourly_data_list;
+		});
+	});
+	</script>
+</head>
+<body>
+	<h1>Stritter - streaming Twitter counter</h1>
+	<div id="shapes_container">
+	</div>
+	<h6>Hourly Counts</h6>
+	<p>
+		<ul id="hourly_data_container">
+		</ul>
+	</p>
+	<h6>Total Counts</h6>
+	<p>
+		<ul id="total_data_container">
+		</ul>
+	</p>
+</body>
+</html>
