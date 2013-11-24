@@ -26,9 +26,9 @@ if (process.env.REDISTOGO_URL) {
 
 //Set the sockets.io configuration.
 //THIS IS NECESSARY ONLY FOR HEROKU!
-sockets.configure(function() {
-  sockets.set('transports', ['xhr-polling']);
-  sockets.set('polling duration', 10);
+io.configure(function() {
+  io.set('transports', ['xhr-polling']);
+  io.set('polling duration', 10);
 });
 
 // Setting up basic routing
