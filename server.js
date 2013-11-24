@@ -31,6 +31,7 @@ io.configure(function() {
   io.set('polling duration', 10);
 });
 
+
 // Setting up basic routing
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
