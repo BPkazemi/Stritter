@@ -31,12 +31,13 @@ io.configure(function() {
   io.set('polling duration', 10);
 });
 
+// Middleware
+app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
 
 // Setting up basic routing
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
-
 
 // ------------ Filter tweets using Twitter's streaming API, -------------
 // ------------ and send them to the client. 				 -------------
