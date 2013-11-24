@@ -21,7 +21,7 @@ if (process.env.REDISTOGO_URL) {
 }
 
 // Start the server
-// server.listen(3000);
+server.listen(process.env.PORT || 3000);
 
 
 //Set the sockets.io configuration.
