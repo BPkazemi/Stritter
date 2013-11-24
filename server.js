@@ -1,5 +1,6 @@
 // Express
-var app = require('express')();
+var express = require('express');
+var app = express();
 // Required for socket.io
 var server = require('http').createServer(app);
 // Socket io
