@@ -13,18 +13,15 @@ var holidays = categories.holidays;
 // Redis (& Heroku)
 if (process.env.REDISTOGO_URL) {
     var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-	var redis = require("redis").createClient(rtg.port, rtg.hostname);
+	var client = require("redis").createClient(rtg.port, rtg.hostname);
 
 	redis.auth(rtg.auth.split(":")[1]);
 } else {
-    var redis = require("redis").createClient();
+    var client = require("redis").createClient();
 }
 
 // Start the server
-server.listen(3000);
-
-// Create Redis client
-var client = redis.createClient();
+// server.listen(3000);
 
 // Setting up basic routing
 app.get('/', function (req, res) {
