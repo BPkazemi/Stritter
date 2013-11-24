@@ -23,6 +23,14 @@ if (process.env.REDISTOGO_URL) {
 // Start the server
 // server.listen(3000);
 
+
+//Set the sockets.io configuration.
+//THIS IS NECESSARY ONLY FOR HEROKU!
+sockets.configure(function() {
+  sockets.set('transports', ['xhr-polling']);
+  sockets.set('polling duration', 10);
+});
+
 // Setting up basic routing
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
