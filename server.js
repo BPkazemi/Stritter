@@ -24,9 +24,8 @@ if (process.env.REDISTOGO_URL) {
 // Start the server
 server.listen(process.env.PORT || 3000);
 
-
-//Set the sockets.io configuration.
-//THIS IS NECESSARY ONLY FOR HEROKU!
+// Set the sockets.io configuration.
+// THIS IS NECESSARY ONLY FOR HEROKU!
 io.configure(function() {
   io.set('transports', ['xhr-polling']);
   io.set('polling duration', 10);
@@ -59,25 +58,24 @@ var hours_array = [];
 
 // Set the first hour so we have a reference for "prev_hour"
 var starting_hour = (new Date()).getHours();
-hours_array[starting_hour] = {}
+hours_array[starting_hour] = {}; // holds hourly data for every hour. 
 client.set('prev_hour', starting_hour);
 
 // Construct a list of holidays
 var holidays_list = [];
-for (holiday in categories.holidays) {
-	holidays_list.push(holiday);
+for (holiday_key in categories.holidays) {
+	holidays_list.push(holiday_key);
 
-	client.get(holiday, function(err, res) {
-		total_data[holiday] = res;
+	// Initialize the total_data object
+	client.get(holiday_key, function(err, res) {
+		total_data[holiday_key] = res;
 	});
-
-	var starting_hour_obj = hours_array[starting_hour];
-	starting_hour_obj[holiday] = 0;
 }
 
 // On first connection, send whatever data we have
 io.sockets.on('connection', function(socket) {
-	socket.emit('data', total_data);
+	// On connection, emit some data
+	socket.emit('data', { total_data: total_data, hourly_data: hours_array[starting_hour]});
 
 	// Filter live tweets
 	t.stream(
@@ -88,37 +86,43 @@ io.sockets.on('connection', function(socket) {
 				// Let's see the tweet!
 				console.log(tweet.text);
 
-				// Update the hourly data
+				// Always be aware of the current hour
 				var hour = (new Date()).getHours();
 
 				client.get('prev_hour', function(err, previous) {
-					// The hour changed!
 					if(hour != previous) {
-						// So clear the current hour's data
+						// The hour changed! Let's clear the new hour's data
 						hours_array[hour] = {}; 
 						// And update Redis
 						client.set('prev_hour', hour);
 					}
-					var cur_hour_obj = hours_array[hour];
+					var hourly_data = hours_array[hour];
 
-					// Emit an event for every occurrence, and update the counts
-					for(holiday in categories.holidays) {
+					// Emit a socket event for every occurrence, and update the counts
+					for(holiday_key in categories.holidays) {
+						var holiday = categories.holidays[holiday];
+						console.log('HOLIDAY: ' + holiday);
+
 						if(tweet.text !== undefined && tweet.text !== null) {
-							if(tweet.text.toLowerCase().indexOf(categories.holidays[holiday]) > -1) {
-								client.incr(holiday);
-								cur_hour_obj[holiday]++;
+							// TODO: Be smarter about identifying target words
+							if(tweet.text.toLowerCase().indexOf(holiday) > -1) {
+								client.incr(holiday_key);
+								hourly_data[holiday_key]++;
+								console.log('HOURLY DATA: ' + hourly_data);
+								hours_array[hour] = hourly_data;
 							}
 						}
 					}
 
 					// Send from Redis
 					client.mget(holidays_list, function(err, data) {
-						for(holiday in categories.holidays) {
+						for(holiday_key in categories.holidays) {
+							var holiday = categories.holidays[holiday_key];
 							total_data[holiday] = data[holidays_list.indexOf(holiday)];
 						}
 					});
 				})
-				socket.emit('data', { total_data: total_data, hourly_data: hours_array[hour] });
+				socket.emit('data', { total_data: total_data, hourly_data: hourly_data });
 			});
 		}
 	);
