@@ -101,7 +101,7 @@ io.sockets.on('connection', function(socket) {
 					// Emit a socket event for every occurrence, and update the counts
 					for(holiday_key in categories.holidays) {
 						var holiday = categories.holidays[holiday];
-						console.log('HOLIDAY: ' + holiday);
+						console.log('HERE HEREHR EHRE');
 
 						if(tweet.text !== undefined && tweet.text !== null) {
 							// TODO: Be smarter about identifying target words
